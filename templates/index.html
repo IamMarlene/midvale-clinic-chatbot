@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midvale Community Clinic Chatbot | Healthcare Assistance</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #81c784;
+            --accent-color: #e8f5e9;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #219653;
+            --user-message-color: #e6f7ff;
+            --bot-message-color: #f0f5fa;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s ease;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 24px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            height: 85vh;
+            max-height: 800px;
+        }
+
+        .left-panel {
+            background: linear-gradient(135deg, var(--primary-color), #1b5e20);
+            color: white;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://img.freepik.com/free-photo/medical-banner-with-doctor-working-hospital_23-2149611193.jpg');
+            background-size: cover;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .panel-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand {
+            margin-bottom: 2rem;
+        }
+
+        .brand h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .brand p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .features {
+            margin-bottom: 2rem;
+        }
+
+        .features h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+
+        .feature-text {
+            font-size: 0.9rem;
+        }
+
+        .attribution {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .chat-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-title {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-title h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+            margin-left: 1rem;
+        }
+
+        .chat-title .status {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success-color);
+            border-radius: 50%;
+            margin-left: 0.5rem;
+        }
+
+        .status-text {
+            font-size: 0.8rem;
+            color: var(--success-color);
+            margin-left: 0.5rem;
+        }
+
+        .chatbox {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem 2rem;
+            background-color: #fcfdff;
+        }
+
+        .messages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            max-width: 80%;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .bot-avatar {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .user-avatar {
+            background-color: #e1e5ea;
+            color: var(--dark-color);
+        }
+
+        .message-content {
+            background-color: var(--bot-message-color);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+
+        .message-content::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: -8px;
+            width: 15px;
+            height: 15px;
+            background-color: inherit;
+            transform: rotate(45deg);
+        }
+
+        .user-message {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .user-message .message-avatar {
+            margin-right: 0;
+            margin-left: 1rem;
+        }
+
+        .user-message .message-content {
+            background-color: var(--user-message-color);
+        }
+
+        .user-message .message-content::before {
+            left: auto;
+            right: -8px;
+        }
+
+        .message-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #99a1a8;
+        }
+
+        .message-time {
+            font-weight: 500;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+            margin-left: 3.5rem;
+        }
+
+        .typing-bubble {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin-right: 5px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            animation: typingBubble 1s infinite ease-in-out;
+        }
+
+        .typing-bubble:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-bubble:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingBubble {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .input-area {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            background-color: white;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .message-input {
+            background-color: var(--light-color);
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            width: 100%;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .message-input:focus {
+            outline: none;
+            box-shadow: var(--shadow-md);
+            background-color: white;
+        }
+
+        .input-controls {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+        }
+
+        .input-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .input-button:hover {
+            background-color: #e1e5ea;
+        }
+
+        .send-button {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .send-button:hover {
+            background-color: #1b5e20;
+        }
+
+        .language-toggle {
+            display: flex;
+            align-items: center;
+            margin-right: 1rem;
+        }
+
+        .language-toggle .toggle-label {
+            margin: 0 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .language-btn {
+            background: none;
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .language-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .language-btn:hover:not(.active) {
+            background-color: #f1f1f1;
+        }
+
+        /* Loading Animation */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(46, 125, 50, 0.1);
+            border-radius: 50%;
+            border-left-color: var(--primary-color);
+            animation: spinner 1s linear infinite;
+        }
+
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 992px) {
+            .chat-container {
+                flex-direction: column;
+                height: auto;
+                max-height: none;
+            }
+
+            .left-panel {
+                padding: 1.5rem;
+                height: auto;
+            }
+
+            .brand h1 {
+                font-size: 1.5rem;
+            }
+
+            .features h3 {
+                font-size: 1.1rem;
+            }
+
+            .right-panel {
+                height: 70vh;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .app-container {
+                padding: 1rem 0.5rem;
+            }
+
+            .chat-header {
+                padding: 1rem;
+            }
+
+            .chatbox {
+                padding: 1rem;
+            }
+
+            .input-area {
+                padding: 1rem;
+                position: sticky;
+                bottom: 0;
+                background-color: white;
+                z-index: 10;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .message-content {
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        /* Full screen fixes */
+        @media (min-height: 900px) {
+            .chat-container {
+                height: 90vh;
+                max-height: 90vh;
+            }
+            
+            .chatbox {
+                max-height: calc(90vh - 130px);
+                overflow-y: auto;
+            }
+            
+            .messages-container {
+                overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="chat-container row">
+            <!-- Left information panel -->
+            <div class="col-lg-4 left-panel" data-aos="fade-right">
+                <div class="panel-content">
+                    <div class="brand">
+                        <h1 id="brand-title">Midvale Community Clinic Chatbot</h1>
+                        <p id="brand-description">Your virtual healthcare assistant for information about our services, appointments, and health guidance.</p>
+                    </div>
+                    <div class="features">
+                        <h3 id="help-heading">How I Can Help</h3>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div id="feature-appointments" class="feature-text">Schedule appointments</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div id="feature-hours" class="feature-text">Provide clinic hours</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-stethoscope"></i>
+                            </div>
+                            <div id="feature-services" class="feature-text">Explain services offered</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div id="feature-directions" class="feature-text">Directions & contact info</div>
+                        </div>
+                    </div>
+                    <div class="attribution">
+                        <p id="attribution-text">Powered by AI | Midvale Community Clinic</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right chat panel -->
+            <div class="col-lg-8 right-panel" data-aos="fade-left">
+                <div class="chat-header">
+                    <div class="chat-title">
+                        <i class="fas fa-user-md fa-lg"></i>
+                        <h2>Clinic Assistant</h2>
+                        <div class="status">
+                            <span class="status-indicator"></span>
+                            <span class="status-text">Online</span>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="language-toggle">
+                            <button id="englishBtn" class="language-btn active">EN</button>
+                            <span class="toggle-label">|</span>
+                            <button id="spanishBtn" class="language-btn">ES</button>
+                        </div>
+                        <button id="clearChat" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-broom"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="chatbox" class="chatbox">
+                    <div class="messages-container">
+                        <!-- Welcome message from bot -->
+                        <div class="message bot-message fade-in">
+                            <div class="message-avatar bot-avatar">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <div class="message-content">
+                                    <p id="welcomeMessage">Welcome! I'm here to help with information about Midvale Community Clinic. What would you like to know?</p>
+                                </div>
+                                <div class="message-meta">
+                                    <span class="message-from">Clinic Assistant</span>
+                                    <span class="message-time" id="welcomeTime">Just now</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Typing indicator (hidden by default) -->
+                        <div id="typingIndicator" class="typing-indicator" style="display: none;">
+                            <div class="message-avatar bot-avatar">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <div class="message-content" style="padding: 0.5rem 1rem;">
+                                    <div class="typing-bubble"></div>
+                                    <div class="typing-bubble"></div>
+                                    <div class="typing-bubble"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-area">
+                    <div class="input-container">
+                        <input 
+                            id="question" 
+                            type="text" 
+                            class="message-input" 
+                            placeholder="Type your question here..."
+                            aria-label="Type your message"
+                        >
+                        <div class="input-controls">
+                            <button id="sendButton" class="input-button send-button">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize AOS animation library
+            AOS.init({
+                duration: 800,
+                once: true
+            });
+            
+            // Fix for scrolling issues on fullscreen
+            function updateChatboxHeight() {
+                const windowHeight = $(window).height();
+                const headerHeight = $('.chat-header').outerHeight();
+                const inputAreaHeight = $('.input-area').outerHeight();
+                
+                // If window is tall enough, adjust chatbox height
+                if (windowHeight > 900) {
+                    $('.chatbox').css('max-height', `calc(${windowHeight}px - ${headerHeight}px - ${inputAreaHeight}px - 40px)`);
+                }
+            }
+            
+            // Run on page load and when window resizes
+            updateChatboxHeight();
+            $(window).resize(updateChatboxHeight);
+            
+            // Language settings
+            let currentLanguage = 'en'; // Default language
+            const translations = {
+                welcome: {
+                    en: "Welcome! I'm here to help with information about Midvale Community Clinic. What would you like to know?",
+                    es: "¡Bienvenido! Estoy aquí para ayudarle con información sobre la Clínica Comunitaria de Midvale. ¿Qué le gustaría saber?"
+                },
+                inputPlaceholder: {
+                    en: "Type your question here...",
+                    es: "Escriba su pregunta aquí..."
+                },
+                clearConfirm: {
+                    en: "Are you sure you want to clear the chat history?",
+                    es: "¿Está seguro de que desea borrar el historial del chat?"
+                },
+                clearMessage: {
+                    en: "Chat history cleared. How else can I help you?",
+                    es: "Historial de chat borrado. ¿En qué más puedo ayudarle?"
+                },
+                // Left panel translations
+                brandTitle: {
+                    en: "Midvale Community Clinic Chatbot",
+                    es: "Chatbot de la Clínica Comunitaria de Midvale"
+                },
+                brandDescription: {
+                    en: "Your virtual healthcare assistant for information about our services, appointments, and health guidance.",
+                    es: "Su asistente virtual de salud para información sobre nuestros servicios, citas y orientación médica."
+                },
+                helpHeading: {
+                    en: "How I Can Help",
+                    es: "Cómo Puedo Ayudar"
+                },
+                featureAppointments: {
+                    en: "Schedule appointments",
+                    es: "Programar citas"
+                },
+                featureHours: {
+                    en: "Provide clinic hours",
+                    es: "Informar horarios de la clínica"
+                },
+                featureServices: {
+                    en: "Explain services offered",
+                    es: "Explicar servicios ofrecidos"
+                },
+                featureDirections: {
+                    en: "Directions & contact info",
+                    es: "Direcciones e información de contacto"
+                },
+                attribution: {
+                    en: "Powered by AI | Midvale Community Clinic",
+                    es: "Desarrollado con IA | Clínica Comunitaria de Midvale"
+                }
+            };
+            
+            // Set welcome message time
+            $('#welcomeTime').text(formatTime(new Date()));
+
+            // Format time for messages
+            function formatTime(date) {
+                let hours = date.getHours();
+                let minutes = date.getMinutes();
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                
+                return hours + ':' + minutes + ' ' + ampm;
+            }
+            
+            // Scroll to bottom of chat
+            function scrollToBottom() {
+                const chatbox = document.getElementById('chatbox');
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }
+            
+            // Show typing indicator
+            function showTypingIndicator() {
+                $('#typingIndicator').show();
+                scrollToBottom();
+            }
+            
+            // Hide typing indicator
+            function hideTypingIndicator() {
+                $('#typingIndicator').hide();
+            }
+            
+            // Add a new message to the chat
+            function addMessage(content, isUser = false) {
+                const time = formatTime(new Date());
+                const avatar = isUser ? 
+                    '<div class="message-avatar user-avatar"><i class="fas fa-user"></i></div>' : 
+                    '<div class="message-avatar bot-avatar"><i class="fas fa-user-md"></i></div>';
+                const sender = isUser ? 'You' : 'Clinic Assistant';
+                
+                const messageHtml = `
+                    <div class="message ${isUser ? 'user-message' : 'bot-message'} fade-in">
+                        ${avatar}
+                        <div class="message-bubble">
+                            <div class="message-content">
+                                <p>${content}</p>
+                            </div>
+                            <div class="message-meta">
+                                <span class="message-from">${sender}</span>
+                                <span class="message-time">${time}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add message to the messages container, before the typing indicator
+                $('.messages-container').append(messageHtml);
+                
+                // Scroll to bottom
+                scrollToBottom();
+            }
+            
+            // Switch language function
+            function switchLanguage(lang) {
+                currentLanguage = lang;
+                
+                // Update welcome message if it's still the default one
+                const welcomeMessageEl = $('#welcomeMessage');
+                if (welcomeMessageEl.text() === translations.welcome.en || welcomeMessageEl.text() === translations.welcome.es) {
+                    welcomeMessageEl.text(translations.welcome[lang]);
+                }
+                
+                // Update input placeholder
+                $('#question').attr('placeholder', translations.inputPlaceholder[lang]);
+                
+                // Update language buttons
+                if (lang === 'en') {
+                    $('#englishBtn').addClass('active');
+                    $('#spanishBtn').removeClass('active');
+                } else {
+                    $('#englishBtn').removeClass('active');
+                    $('#spanishBtn').addClass('active');
+                }
+                
+                // Update left panel content
+                $('#brand-title').text(translations.brandTitle[lang]);
+                $('#brand-description').text(translations.brandDescription[lang]);
+                $('#help-heading').text(translations.helpHeading[lang]);
+                $('#feature-appointments').text(translations.featureAppointments[lang]);
+                $('#feature-hours').text(translations.featureHours[lang]);
+                $('#feature-services').text(translations.featureServices[lang]);
+                $('#feature-directions').text(translations.featureDirections[lang]);
+                $('#attribution-text').text(translations.attribution[lang]);
+            }
+            
+            // Language toggle buttons
+            $('#englishBtn').on('click', function() {
+                switchLanguage('en');
+            });
+            
+            $('#spanishBtn').on('click', function() {
+                switchLanguage('es');
+            });
+            
+            // Send message function
+            function sendMessage() {
+                const question = $('#question').val().trim();
+                if (question === '') {
+                    return;
+                }
+                
+                // Add user message to chat
+                addMessage(question, true);
+                
+                // Clear input
+                $('#question').val('');
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Send to backend
+                $.ajax({
+                    url: '/chatbot',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ 
+                        question: question,
+                        language: currentLanguage
+                    }),
+                    success: function(response) {
+                        // Format response (handle newlines)
+                        const formattedResponse = response.response.replace(/\n/g, '<br>');
+                        
+                        // Add bot response with a small delay for natural feel
+                        setTimeout(() => {
+                            hideTypingIndicator(); // Ensure typing indicator is hidden
+                            addMessage(formattedResponse);
+                            // Enable the input field and send button again
+                            $('#question').prop('disabled', false);
+                            $('#sendButton').prop('disabled', false);
+                        }, 800); // Delay of 800ms
+                    },
+                    error: function(xhr, status, error) {
+                        // Hide typing and show error message
+                        setTimeout(() => {
+                            hideTypingIndicator(); // Ensure typing indicator is hidden
+                            const errorMessage = currentLanguage === 'en' ? 
+                                "I'm sorry, there was an error processing your request. Please try again later." :
+                                "Lo siento, hubo un error al procesar su solicitud. Por favor, inténtelo de nuevo más tarde.";
+                            addMessage(errorMessage);
+                            // Enable the input field and send button again
+                            $('#question').prop('disabled', false);
+                            $('#sendButton').prop('disabled', false);
+                        }, 500);
+                        
+                        console.error('Error:', error, xhr.responseText);
+                    },
+                    // Disable input and button while waiting for response
+                    beforeSend: function() {
+                        $('#question').prop('disabled', true);
+                        $('#sendButton').prop('disabled', true);
+                    }
+                });
+            }
+            
+            // Send button click
+            $('#sendButton').on('click', sendMessage);
+            
+            // Enter key press
+            $('#question').on('keypress', function(e) {
+                if (e.which === 13) {
+                    sendMessage();
+                }
+            });
+            
+            // Clear chat
+            $('#clearChat').on('click', function() {
+                if (confirm(translations.clearConfirm[currentLanguage])) {
+                    $('.messages-container').html(`
+                        <div class="message bot-message fade-in">
+                            <div class="message-avatar bot-avatar">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <div class="message-content">
+                                    <p>${translations.clearMessage[currentLanguage]}</p>
+                                </div>
+                                <div class="message-meta">
+                                    <span class="message-from">Clinic Assistant</span>
+                                    <span class="message-time">${formatTime(new Date())}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="typingIndicator" class="typing-indicator" style="display: none;">
+                            <div class="message-avatar bot-avatar">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <div class="message-content" style="padding: 0.5rem 1rem;">
+                                    <div class="typing-bubble"></div>
+                                    <div class="typing-bubble"></div>
+                                    <div class="typing-bubble"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+            });
+            
+            // Focus input on load
+            $('#question').focus();
+        });
+    </script>
+</body>
+</html>
