@@ -154,3 +154,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Google's Gemini AI for powering the Q&A capabilities
 - Flask and BeautifulSoup for web framework and content extraction
 - Bootstrap and jQuery for responsive design and interactive elements
+- This project was inspired from [PersonalChatbot](https://github.com/Minhoru123/PersonalChatbot) by Minhouri123 and has been modified to enhance user experience and use a Gemini LLM instead of OpenAI.
